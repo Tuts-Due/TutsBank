@@ -1,13 +1,3 @@
-/**
- * STORE DE TRANSAÇÕES (ZUSTAND)
- *
- * Gerencia estado de transações e histórico.
- * Integra-se com React Query para sincronização de dados.
- *
- * Uso:
- * const { transactions, addTransaction } = useTransactionStore();
- */
-
 import { create } from "zustand";
 import { Transaction, TransactionType, TransactionStatus } from "@/types";
 
@@ -25,8 +15,6 @@ interface TransactionStore {
   loading: boolean;
   error: string | null;
   filters: TransactionFilters;
-
-  // Actions
   setTransactions: (transactions: Transaction[]) => void;
   addTransaction: (transaction: Transaction) => void;
   removeTransaction: (id: string) => void;
@@ -43,57 +31,42 @@ export const useTransactionStore = create<TransactionStore>((set, get) => ({
   error: null,
   filters: {},
 
-  setTransactions: (transactions: Transaction[]) => {
-    set({ transactions });
-  },
+  setTransactions: (transactions) => set({ transactions }),
 
-  addTransaction: (transaction: Transaction) => {
+  addTransaction: (transaction) =>
     set((state) => ({
       transactions: [transaction, ...state.transactions],
-    }));
-  },
+    })),
 
-  removeTransaction: (id: string) => {
+  removeTransaction: (id) =>
     set((state) => ({
-      transactions: state.transactions.filter((t) => t.id !== id),
-    }));
-  },
+      transactions: state.transactions.filter((transaction) => transaction.id !== id),
+    })),
 
-  setLoading: (loading: boolean) => {
-    set({ loading });
-  },
+  setLoading: (loading) => set({ loading }),
 
-  setError: (error: string | null) => {
-    set({ error });
-  },
+  setError: (error) => set({ error }),
 
-  setFilters: (filters: TransactionFilters) => {
-    set({ filters });
-  },
+  setFilters: (filters) => set({ filters }),
 
-  clearFilters: () => {
-    set({ filters: {} });
-  },
+  clearFilters: () => set({ filters: {} }),
 
   getFilteredTransactions: () => {
     const state = get();
     let filtered = [...state.transactions];
 
-    // Filtrar por tipo
     if (state.filters.type) {
-      filtered = filtered.filter((t) => t.type === state.filters.type);
+      filtered = filtered.filter((transaction) => transaction.type === state.filters.type);
     }
 
-    // Filtrar por status
     if (state.filters.status) {
-      filtered = filtered.filter((t) => t.status === state.filters.status);
+      filtered = filtered.filter((transaction) => transaction.status === state.filters.status);
     }
 
-    // Filtrar por data
     if (state.filters.dateRange) {
       const { from, to } = state.filters.dateRange;
-      filtered = filtered.filter((t) => {
-        const date = new Date(t.date);
+      filtered = filtered.filter((transaction) => {
+        const date = new Date(transaction.date);
         return date >= from && date <= to;
       });
     }
@@ -101,10 +74,6 @@ export const useTransactionStore = create<TransactionStore>((set, get) => ({
     return filtered;
   },
 }));
-
-// ============================================================================
-// SELETORES
-// ============================================================================
 
 export const useTransactions = () =>
   useTransactionStore((state) => state.transactions);

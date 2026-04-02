@@ -1,21 +1,3 @@
-/**
- * TIPOS CENTRALIZADOS DO PROJETO
- *
- * Arquivo único para todas as definições de tipos TypeScript.
- * Facilita manutenção, evita circular imports e garante consistência.
- *
- * Organização:
- * 1. Tipos de Autenticação
- * 2. Tipos de Transações
- * 3. Tipos de Usuário
- * 4. Tipos de Resposta API
- * 5. Tipos de Erros
- */
-
-// ============================================================================
-// 1. AUTENTICAÇÃO
-// ============================================================================
-
 export interface LoginCredentials {
   email: string;
   password: string;
@@ -34,10 +16,6 @@ export interface AuthState {
   error: string | null;
 }
 
-// ============================================================================
-// 2. USUÁRIO
-// ============================================================================
-
 export interface User {
   id: string;
   name: string;
@@ -48,10 +26,6 @@ export interface User {
   balance: number;
   createdAt: string;
 }
-
-// ============================================================================
-// 3. TRANSAÇÕES
-// ============================================================================
 
 export enum TransactionType {
   TRANSFER = "transfer",
@@ -91,40 +65,6 @@ export interface TransferResponse {
   message: string;
 }
 
-// ============================================================================
-// 4. RESPOSTAS API
-// ============================================================================
-
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-}
-
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-  hasMore: boolean;
-}
-
-// ============================================================================
-// 5. ERROS
-// ============================================================================
-
-export interface ApiError {
-  code: string;
-  message: string;
-  status: number;
-  details?: Record<string, unknown>;
-}
-
-// ============================================================================
-// 6. STORE STATE
-// ============================================================================
-
 export interface TransactionState {
   transactions: Transaction[];
   loading: boolean;
@@ -137,9 +77,4 @@ export interface TransactionState {
       to: Date;
     };
   };
-}
-
-export interface AppState {
-  auth: AuthState;
-  transactions: TransactionState;
 }

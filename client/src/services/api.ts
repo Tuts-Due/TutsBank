@@ -1,6 +1,4 @@
-
-
-import axios, { AxiosInstance, AxiosError } from "axios";
+import axios from "axios";
 import {
   LoginCredentials,
   AuthResponse,
@@ -10,46 +8,18 @@ import {
   TransactionStatus,
   TransferPayload,
   TransferResponse,
-  ApiResponse,
 } from "@/types";
 
-
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
-const MOCK_DELAY = 80; // Simular latência de rede (ms)
-
-const apiClient: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
+const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000/api",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("user");
-      window.location.href = "/login";
-    }
-    return Promise.reject(error);
-  }
-);
-
-
+const MOCK_DELAY = 80;
+const isTestEnv = import.meta.env.MODE === "test";
 
 const MOCK_USERS: Record<string, User> = {
   "user@tutsbank.com": {
@@ -102,23 +72,10 @@ const MOCK_TRANSACTIONS: Record<string, Transaction[]> = {
   ],
 };
 
-// ============================================================================
-// FUNÇÕES UTILITÁRIAS
-// ============================================================================
+const simulateNetworkDelay = () =>
+  new Promise<void>((resolve) => setTimeout(resolve, MOCK_DELAY));
 
-/**
- * Simula latência de rede
- */
-const simulateNetworkDelay = (): Promise<void> => {
-  return new Promise((resolve) => setTimeout(resolve, MOCK_DELAY));
-};
-
-/**
- * Simula erro aleatório (5% de chance)
- */
-const isTestEnv = import.meta.env.MODE === "test";
-
-const simulateRandomError = (): void => {
+const simulateRandomError = () => {
   if (isTestEnv) return;
 
   if (Math.random() < 0.05) {
@@ -126,15 +83,13 @@ const simulateRandomError = (): void => {
   }
 };
 
+const getUserById = (userId: string) =>
+  Object.values(MOCK_USERS).find((user) => user.id === userId);
+
 export const authService = {
-  /**
-   * Login com credenciais
-   * Mock: email=user@tutsbank.com, password=password123
-   */
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     await simulateNetworkDelay();
 
-    // Mock: aceita qualquer senha, mas email deve estar no sistema
     const user = MOCK_USERS[credentials.email];
 
     if (!user) {
@@ -142,32 +97,25 @@ export const authService = {
     }
 
     const token = `mock-token-${Date.now()}`;
+
     localStorage.setItem("authToken", token);
     localStorage.setItem("user", JSON.stringify(user));
 
-    return {
-      token,
-      user,
-    };
+    return { token, user };
   },
 
-  /**
-   * Logout
-   */
   logout: async (): Promise<void> => {
     await simulateNetworkDelay();
     localStorage.removeItem("authToken");
     localStorage.removeItem("user");
   },
 
-  /**
-   * Obter usuário atual
-   */
   getCurrentUser: async (): Promise<User> => {
     await simulateNetworkDelay();
     simulateRandomError();
 
     const userJson = localStorage.getItem("user");
+
     if (!userJson) {
       throw new Error("Usuário não autenticado");
     }
@@ -176,14 +124,7 @@ export const authService = {
   },
 };
 
-// ============================================================================
-// SERVIÇO DE TRANSAÇÕES
-// ============================================================================
-
 export const transactionService = {
-  /**
-   * Listar transações do usuário
-   */
   getTransactions: async (userId: string): Promise<Transaction[]> => {
     await simulateNetworkDelay();
     simulateRandomError();
@@ -191,9 +132,6 @@ export const transactionService = {
     return MOCK_TRANSACTIONS[userId] || [];
   },
 
-  /**
-   * Realizar transferência
-   */
   transfer: async (
     userId: string,
     payload: TransferPayload
@@ -201,12 +139,12 @@ export const transactionService = {
     await simulateNetworkDelay();
     simulateRandomError();
 
-    const user = Object.values(MOCK_USERS).find((u) => u.id === userId);
+    const user = getUserById(userId);
+
     if (!user) {
       throw new Error("Usuário não encontrado");
     }
 
-    // Validações
     if (payload.amount <= 0) {
       throw new Error("Valor deve ser maior que zero");
     }
@@ -215,7 +153,6 @@ export const transactionService = {
       throw new Error("Saldo insuficiente");
     }
 
-    // Criar transação
     const transaction: Transaction = {
       id: `txn-${Date.now()}`,
       type: TransactionType.TRANSFER,
@@ -228,16 +165,13 @@ export const transactionService = {
       timestamp: Date.now(),
     };
 
-    // Atualizar saldo
     user.balance -= payload.amount;
 
-    // Adicionar transação ao histórico
     if (!MOCK_TRANSACTIONS[userId]) {
       MOCK_TRANSACTIONS[userId] = [];
     }
-    MOCK_TRANSACTIONS[userId].unshift(transaction);
 
-    // Persistir usuário atualizado
+    MOCK_TRANSACTIONS[userId].unshift(transaction);
     localStorage.setItem("user", JSON.stringify(user));
 
     return {
@@ -248,9 +182,6 @@ export const transactionService = {
     };
   },
 
-  /**
-   * Obter detalhes de uma transação
-   */
   getTransactionById: async (
     userId: string,
     transactionId: string
@@ -258,7 +189,7 @@ export const transactionService = {
     await simulateNetworkDelay();
 
     const transactions = MOCK_TRANSACTIONS[userId] || [];
-    const transaction = transactions.find((t) => t.id === transactionId);
+    const transaction = transactions.find((item) => item.id === transactionId);
 
     if (!transaction) {
       throw new Error("Transação não encontrada");
@@ -268,18 +199,12 @@ export const transactionService = {
   },
 };
 
-// ============================================================================
-// SERVIÇO DE CONTA
-// ============================================================================
-
 export const accountService = {
-  /**
-   * Obter saldo da conta
-   */
   getBalance: async (userId: string): Promise<number> => {
     await simulateNetworkDelay();
 
-    const user = Object.values(MOCK_USERS).find((u) => u.id === userId);
+    const user = getUserById(userId);
+
     if (!user) {
       throw new Error("Usuário não encontrado");
     }
@@ -287,30 +212,25 @@ export const accountService = {
     return user.balance;
   },
 
-  /**
-   * Atualizar perfil do usuário
-   */
   updateProfile: async (
     userId: string,
     updates: Partial<User>
   ): Promise<User> => {
     await simulateNetworkDelay();
 
-    const user = Object.values(MOCK_USERS).find((u) => u.id === userId);
+    const user = getUserById(userId);
+
     if (!user) {
       throw new Error("Usuário não encontrado");
     }
 
-    const updated = { ...user, ...updates };
-    MOCK_USERS[updated.email] = updated;
-    localStorage.setItem("user", JSON.stringify(updated));
+    const updatedUser = { ...user, ...updates };
 
-    return updated;
+    MOCK_USERS[updatedUser.email] = updatedUser;
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+
+    return updatedUser;
   },
 };
-
-// ============================================================================
-// EXPORTAR CLIENTE AXIOS
-// ============================================================================
 
 export default apiClient;

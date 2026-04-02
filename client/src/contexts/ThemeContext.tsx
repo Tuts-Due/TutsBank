@@ -1,9 +1,3 @@
-/**
- * CONTEXTO DE TEMA
- *
- * Gerencia tema claro/escuro usando next-themes.
- * Fornece hook useTheme para acessar tema e função de alternância.
- */
 
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { ReactNode } from "react";
@@ -35,5 +29,4 @@ export function ThemeProvider({
   );
 }
 
-// Re-export useTheme hook from next-themes
 export { useTheme } from "next-themes";

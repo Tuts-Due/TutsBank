@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { authService } from "@/services/api";
 
 describe("Authentication Service", () => {
@@ -61,7 +61,7 @@ describe("Authentication Service", () => {
 
   describe("logout", () => {
     it("should clear localStorage on logout", async () => {
-      // Login first
+      
       await authService.login({
         email: "user@tutsbank.com",
         password: "password123",
@@ -69,7 +69,6 @@ describe("Authentication Service", () => {
 
       expect(localStorage.getItem("authToken")).toBeDefined();
 
-      // Logout
       await authService.logout();
 
       expect(localStorage.getItem("authToken")).toBeNull();
@@ -79,7 +78,6 @@ describe("Authentication Service", () => {
 
   describe("getCurrentUser", () => {
     it("should return current user when authenticated", async () => {
-      // Login first
       await authService.login({
         email: "user@tutsbank.com",
         password: "password123",

@@ -1,15 +1,3 @@
-/**
- * PÁGINA DE PERFIL
- *
- * Permite ao usuário:
- * - Visualizar informações pessoais
- * - Alterar nome, email, telefone
- * - Alterar senha
- * - Validação com Zod
- * - Feedback visual com toast
- *
- * Padrão: Neo-Banking Minimalist
- */
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -23,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Loader2, Eye, EyeOff, CheckCircle, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
-// Schema para informações pessoais
 const personalInfoSchema = z.object({
   name: z
     .string()
@@ -37,7 +24,6 @@ const personalInfoSchema = z.object({
     .regex(/^\(\d{2}\)\s\d{4,5}-\d{4}$/, "Telefone inválido. Formato: (11) 9999-9999"),
 });
 
-// Schema para alteração de senha
 const passwordSchema = z
   .object({
     currentPassword: z
@@ -67,7 +53,6 @@ export default function Profile() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Form para informações pessoais
   const {
     register: registerPersonal,
     handleSubmit: handleSubmitPersonal,
@@ -82,7 +67,6 @@ export default function Profile() {
     },
   });
 
-  // Form para senha
   const {
     register: registerPassword,
     handleSubmit: handleSubmitPassword,
@@ -97,16 +81,12 @@ export default function Profile() {
     },
   });
 
-  // Simular atualização de informações pessoais
   const onSubmitPersonal = async (data: PersonalInfoFormData) => {
     setIsLoadingPersonal(true);
     try {
-      // Simular delay de API
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      // Validar senha atual (mock)
       if (data.email !== user?.email) {
-        // Simular validação
         toast.success("Informações pessoais atualizadas com sucesso!", {
           description: `Nome: ${data.name}, Email: ${data.email}`,
         });
@@ -115,7 +95,7 @@ export default function Profile() {
       }
 
       resetPersonal();
-    } catch (error) {
+    } catch {
       toast.error("Erro ao atualizar informações", {
         description: "Tente novamente mais tarde",
       });
@@ -124,14 +104,12 @@ export default function Profile() {
     }
   };
 
-  // Simular alteração de senha
   const onSubmitPassword = async (data: PasswordFormData) => {
     setIsLoadingPassword(true);
     try {
-      // Simular delay de API
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      // Validar senha atual (mock - aceita qualquer coisa)
+
       if (data.currentPassword === "password123") {
         toast.success("Senha alterada com sucesso!", {
           description: "Sua nova senha foi definida",
@@ -142,7 +120,7 @@ export default function Profile() {
           description: "Verifique e tente novamente",
         });
       }
-    } catch (error) {
+    } catch {
       toast.error("Erro ao alterar senha", {
         description: "Tente novamente mais tarde",
       });
@@ -161,7 +139,7 @@ export default function Profile() {
   return (
     <Layout>
       <div className="space-y-8 animate-fadeInUp">
-        {/* Header */}
+
         <div className="animate-fadeInDown">
           <h1 className="text-3xl md:text-4xl font-bold text-foreground">
             Meu Perfil
@@ -172,7 +150,7 @@ export default function Profile() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Sidebar - Informações do Usuário */}
+
           <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 h-fit animate-scaleIn">
             <div className="space-y-4">
               <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
@@ -212,9 +190,9 @@ export default function Profile() {
             </div>
           </Card>
 
-          {/* Main Content */}
+
           <div className="lg:col-span-2 space-y-6">
-            {/* Formulário de Informações Pessoais */}
+
             <Card className="p-6 hover:shadow-lg transition-all duration-300 animate-slideInLeft">
               <h2 className="text-2xl font-bold text-foreground mb-6">
                 Informações Pessoais
@@ -224,7 +202,7 @@ export default function Profile() {
                 onSubmit={handleSubmitPersonal(onSubmitPersonal)}
                 className="space-y-4"
               >
-                {/* Nome */}
+
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-foreground">
                     Nome Completo
@@ -244,7 +222,7 @@ export default function Profile() {
                   )}
                 </div>
 
-                {/* Email */}
+
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-foreground">
                     Email
@@ -264,7 +242,7 @@ export default function Profile() {
                   )}
                 </div>
 
-                {/* Telefone */}
+
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-foreground">
                     Telefone
@@ -309,7 +287,6 @@ export default function Profile() {
               </form>
             </Card>
 
-            {/* Formulário de Alteração de Senha */}
             <Card className="p-6 border-destructive/20 hover:shadow-lg transition-all duration-300 animate-slideInLeft">
               <h2 className="text-2xl font-bold text-foreground mb-6">
                 Alterar Senha
@@ -319,7 +296,7 @@ export default function Profile() {
                 onSubmit={handleSubmitPassword(onSubmitPassword)}
                 className="space-y-4"
               >
-                {/* Senha Atual */}
+
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-foreground">
                     Senha Atual
@@ -352,7 +329,6 @@ export default function Profile() {
                   )}
                 </div>
 
-                {/* Nova Senha */}
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-foreground">
                     Nova Senha
@@ -385,7 +361,6 @@ export default function Profile() {
                   )}
                 </div>
 
-                {/* Confirmar Senha */}
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-foreground">
                     Confirmar Nova Senha
@@ -418,10 +393,9 @@ export default function Profile() {
                   )}
                 </div>
 
-                {/* Dica de Segurança */}
                 <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
                   <p className="text-xs text-yellow-700 dark:text-yellow-400">
-                    💡 Use uma senha forte com letras, números e caracteres especiais
+                     Use uma senha forte com letras, números e caracteres especiais
                   </p>
                 </div>
 

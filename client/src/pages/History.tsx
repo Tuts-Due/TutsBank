@@ -1,15 +1,3 @@
-/**
- * HISTÓRICO DE TRANSAÇÕES
- *
- * Página com:
- * - Gráfico de gastos vs recebimentos
- * - Filtros avançados (tipo, data, valor)
- * - Exportação de extrato em PDF
- * - Lista de transações
- *
- * Padrão: Neo-Banking Minimalist
- */
-
 import { useState, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useGetTransactions } from "@/hooks/useQueries";
@@ -45,7 +33,6 @@ export default function History() {
     user?.id || null
   );
 
-  // Filtros
   const [filterType, setFilterType] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterMinAmount, setFilterMinAmount] = useState<string>("");
@@ -53,45 +40,40 @@ export default function History() {
   const [filterStartDate, setFilterStartDate] = useState<string>("");
   const [filterEndDate, setFilterEndDate] = useState<string>("");
 
-  // Filtrar transações
   const filteredTransactions = useMemo(() => {
     if (!transactions) return [];
 
     return transactions.filter((tx) => {
-      // Filtro de tipo
       if (filterType !== "all" && tx.type !== filterType) {
         return false;
       }
 
-      // Filtro de status
       if (filterStatus !== "all" && tx.status !== filterStatus) {
         return false;
       }
 
-      // Filtro de valor mínimo
       if (filterMinAmount && tx.amount < parseFloat(filterMinAmount)) {
         return false;
       }
 
-      // Filtro de valor máximo
       if (filterMaxAmount && tx.amount > parseFloat(filterMaxAmount)) {
         return false;
       }
 
-      // Filtro de data inicial
       if (filterStartDate) {
         const txDate = new Date(tx.date);
         const startDate = new Date(filterStartDate);
+
         if (txDate < startDate) {
           return false;
         }
       }
 
-      // Filtro de data final
       if (filterEndDate) {
         const txDate = new Date(tx.date);
         const endDate = new Date(filterEndDate);
         endDate.setHours(23, 59, 59, 999);
+
         if (txDate > endDate) {
           return false;
         }
@@ -99,7 +81,15 @@ export default function History() {
 
       return true;
     });
-  }, [transactions, filterType, filterStatus, filterMinAmount, filterMaxAmount, filterStartDate, filterEndDate]);
+  }, [
+    transactions,
+    filterType,
+    filterStatus,
+    filterMinAmount,
+    filterMaxAmount,
+    filterStartDate,
+    filterEndDate,
+  ]);
 
   const hasActiveFilters =
     filterType !== "all" ||
@@ -168,7 +158,6 @@ export default function History() {
   return (
     <Layout>
       <div className="space-y-8">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold text-foreground">
@@ -188,12 +177,10 @@ export default function History() {
           </Button>
         </div>
 
-        {/* Gráfico */}
         {transactions && transactions.length > 0 && (
           <ExpenseChart transactions={transactions} />
         )}
 
-        {/* Filtros */}
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
@@ -214,7 +201,6 @@ export default function History() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Tipo */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
                 Tipo
@@ -238,7 +224,6 @@ export default function History() {
               </Select>
             </div>
 
-            {/* Status */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
                 Status
@@ -262,7 +247,6 @@ export default function History() {
               </Select>
             </div>
 
-            {/* Valor Mínimo */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
                 Valor Mínimo
@@ -277,7 +261,6 @@ export default function History() {
               />
             </div>
 
-            {/* Valor Máximo */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
                 Valor Máximo
@@ -292,7 +275,6 @@ export default function History() {
               />
             </div>
 
-            {/* Data Inicial */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
                 Data Inicial
@@ -304,7 +286,6 @@ export default function History() {
               />
             </div>
 
-            {/* Data Final */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
                 Data Final
@@ -318,12 +299,11 @@ export default function History() {
           </div>
         </Card>
 
-        {/* Transações */}
         {isLoading ? (
           <Card className="p-8 flex items-center justify-center">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </Card>
-        ) : filteredTransactions && filteredTransactions.length > 0 ? (
+        ) : filteredTransactions.length > 0 ? (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
               {filteredTransactions.length} transação(ões) encontrada(s)

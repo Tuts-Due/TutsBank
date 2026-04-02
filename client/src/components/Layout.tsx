@@ -1,15 +1,4 @@
-/**
- * LAYOUT PRINCIPAL
- *
- * Componente wrapper que fornece:
- * - Sidebar com navegação (responsivo)
- * - Header com informações do usuário
- * - Conteúdo principal com animações
- *
- * Padrão: Neo-Banking Minimalist
- */
-
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -23,7 +12,6 @@ import {
   X,
   User,
 } from "lucide-react";
-import { useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LogoutModal } from "@/components/LogoutModal";
 
@@ -79,6 +67,7 @@ export default function Layout({ children }: LayoutProps) {
 
   const handleConfirmLogout = async () => {
     setIsLoggingOut(true);
+
     try {
       await logout();
       setLogoutModalOpen(false);
@@ -99,7 +88,6 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
-      {/* SIDEBAR - Desktop Fixed, Mobile Overlay */}
       <div
         className={`fixed inset-0 bg-black/50 z-30 lg:hidden ${
           sidebarOpen ? "block animate-fadeInUp" : "hidden"
@@ -112,13 +100,11 @@ export default function Layout({ children }: LayoutProps) {
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 fixed lg:relative w-64 h-screen bg-card border-r border-border transition-transform duration-300 ease-out flex flex-col overflow-hidden z-40 animate-slideInLeft`}
       >
-        {/* Logo */}
         <div className="p-6 border-b border-border animate-fadeInDown">
           <h1 className="text-2xl font-bold text-primary">TutsBank</h1>
           <p className="text-sm text-muted-foreground mt-1">Seu banco moderno</p>
         </div>
 
-        {/* Navigation */}
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           {navItems.map((item, index) => (
             <button
@@ -142,7 +128,6 @@ export default function Layout({ children }: LayoutProps) {
           ))}
         </nav>
 
-        {/* User Info */}
         <div className="p-4 border-t border-border space-y-4 animate-fadeInUp">
           <div className="px-4 py-3 bg-secondary rounded-lg hover:shadow-md transition-shadow">
             <p className="text-xs text-muted-foreground">Usuário</p>
@@ -161,9 +146,7 @@ export default function Layout({ children }: LayoutProps) {
         </div>
       </aside>
 
-      {/* MAIN CONTENT */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* HEADER */}
         <header className="bg-card border-b border-border px-4 md:px-6 py-4 flex items-center justify-between animate-fadeInDown">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -189,7 +172,6 @@ export default function Layout({ children }: LayoutProps) {
           </div>
         </header>
 
-        {/* CONTENT */}
         <main className="flex-1 overflow-auto animate-fadeInUp">
           <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full">
             {children}
@@ -197,7 +179,6 @@ export default function Layout({ children }: LayoutProps) {
         </main>
       </div>
 
-      {/* LOGOUT MODAL */}
       <LogoutModal
         open={logoutModalOpen}
         onConfirm={handleConfirmLogout}

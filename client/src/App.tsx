@@ -1,12 +1,15 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import PrivateRoute from "./components/PrivateRoute";
-
-// Pages
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import Transfer from "@/pages/Transfer";
@@ -15,7 +18,6 @@ import Profile from "@/pages/Profile";
 import Settings from "@/pages/Settings";
 import NotFound from "@/pages/NotFound";
 
-// Create QueryClient
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -29,11 +31,9 @@ const queryClient = new QueryClient({
 function AppRoutes() {
   return (
     <Routes>
-      {/* Rotas Públicas */}
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
 
-      {/* Rotas Protegidas - Exigem Autenticação */}
       <Route
         path="/dashboard"
         element={
@@ -75,7 +75,6 @@ function AppRoutes() {
         }
       />
 
-      {/* Rotas de Erro */}
       <Route path="/404" element={<NotFound />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

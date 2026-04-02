@@ -42,9 +42,6 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* ============================================================================
- * LIGHT MODE - Branco com Verde Ciano
- * ============================================================================ */
 :root {
   --primary: #00d9ff;
   --primary-foreground: #0a0e27;
@@ -81,9 +78,6 @@
   --sidebar-ring: #00d9ff;
 }
 
-/* ============================================================================
- * DARK MODE - Preto com Verde Ciano
- * ============================================================================ */
 .dark {
   --primary: #00d9ff;
   --primary-foreground: #0a0e27;
@@ -123,9 +117,11 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
   [type="button"]:not(:disabled),
@@ -140,24 +136,11 @@
 }
 
 @layer components {
-  /**
-   * Custom container utility that centers content and adds responsive padding.
-   *
-   * This overrides Tailwind's default container behavior to:
-   * - Auto-center content (mx-auto)
-   * - Add responsive horizontal padding
-   * - Set max-width for large screens
-   *
-   * Usage: <div className="container">...</div>
-   *
-   * For custom widths, use max-w-* utilities directly:
-   * <div className="max-w-6xl mx-auto px-4">...</div>
-   */
   .container {
     width: 100%;
     margin-left: auto;
     margin-right: auto;
-    padding-left: 1rem; /* 16px - mobile padding */
+    padding-left: 1rem;
     padding-right: 1rem;
   }
 
@@ -168,24 +151,19 @@
 
   @media (min-width: 640px) {
     .container {
-      padding-left: 1.5rem; /* 24px - tablet padding */
+      padding-left: 1.5rem;
       padding-right: 1.5rem;
     }
   }
 
   @media (min-width: 1024px) {
     .container {
-      padding-left: 2rem; /* 32px - desktop padding */
+      padding-left: 2rem;
       padding-right: 2rem;
-      max-width: 1280px; /* Standard content width */
+      max-width: 1280px;
     }
   }
 
-  /* ============================================================================
-   * ANIMAÇÕES PROFISSIONAIS
-   * ============================================================================ */
-
-  /* Animação de entrada suave */
   @keyframes fadeInUp {
     from {
       opacity: 0;
@@ -230,7 +208,6 @@
     }
   }
 
-  /* Animação de escala suave */
   @keyframes scaleIn {
     from {
       opacity: 0;
@@ -242,9 +219,9 @@
     }
   }
 
-  /* Animação de pulso sutil */
   @keyframes subtlePulse {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 1;
     }
     50% {
@@ -252,7 +229,6 @@
     }
   }
 
-  /* Animação de brilho */
   @keyframes shimmer {
     0% {
       background-position: -1000px 0;
@@ -262,7 +238,6 @@
     }
   }
 
-  /* Classes de animação */
   .animate-fadeInUp {
     animation: fadeInUp 0.5s ease-out;
   }
@@ -287,7 +262,6 @@
     animation: subtlePulse 2s ease-in-out infinite;
   }
 
-  /* Hover effects para botões */
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]) {
     @apply transition-all duration-200 ease-out;
@@ -303,7 +277,6 @@
     @apply transform translate-y-0;
   }
 
-  /* Hover effects para cards */
   .card {
     @apply transition-all duration-300 ease-out;
   }
@@ -312,7 +285,6 @@
     @apply shadow-lg transform -translate-y-1;
   }
 
-  /* Transição suave para inputs */
   input,
   textarea,
   select {
@@ -325,7 +297,6 @@
     @apply ring-2 ring-primary/50;
   }
 
-  /* Animação para modais */
   @keyframes modalSlideIn {
     from {
       opacity: 0;
@@ -341,7 +312,6 @@
     animation: modalSlideIn 0.3s ease-out;
   }
 
-  /* Animação para sidebar */
   @keyframes sidebarSlide {
     from {
       transform: translateX(-100%);

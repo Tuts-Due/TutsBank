@@ -1,14 +1,3 @@
-/**
- * GRÁFICO DE GASTOS E RECEBIMENTOS
- *
- * Exibe um gráfico de barras com:
- * - Gastos (transferências)
- * - Recebimentos (depósitos)
- * - Cores do projeto (verde ciano para recebimentos, vermelho para gastos)
- *
- * Padrão: Neo-Banking Minimalist
- */
-
 import { useMemo } from "react";
 import {
   BarChart,
@@ -31,7 +20,6 @@ interface ExpenseChartProps {
 
 export function ExpenseChart({ transactions }: ExpenseChartProps) {
   const chartData = useMemo(() => {
-    // Agrupar transações por mês
     const monthlyData: Record<
       string,
       { month: string; gastos: number; recebimentos: number }
@@ -57,7 +45,6 @@ export function ExpenseChart({ transactions }: ExpenseChartProps) {
       }
     });
 
-    // Retornar últimos 6 meses
     return Object.values(monthlyData).slice(-6);
   }, [transactions]);
 
@@ -79,7 +66,6 @@ export function ExpenseChart({ transactions }: ExpenseChartProps) {
 
   return (
     <div className="space-y-6">
-      {/* Cards de Resumo */}
       <div className="grid grid-cols-2 gap-4">
         <Card className="p-4">
           <p className="text-xs text-muted-foreground mb-1">Total de Gastos</p>
@@ -95,7 +81,6 @@ export function ExpenseChart({ transactions }: ExpenseChartProps) {
         </Card>
       </div>
 
-      {/* Gráfico */}
       <Card className="p-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">
           Gastos vs Recebimentos
@@ -129,7 +114,12 @@ export function ExpenseChart({ transactions }: ExpenseChartProps) {
                 wrapperStyle={{ paddingTop: "20px" }}
                 iconType="square"
               />
-              <Bar dataKey="gastos" fill="#ef4444" name="Gastos" radius={[8, 8, 0, 0]} />
+              <Bar
+                dataKey="gastos"
+                fill="#ef4444"
+                name="Gastos"
+                radius={[8, 8, 0, 0]}
+              />
               <Bar
                 dataKey="recebimentos"
                 fill="#00d9ff"

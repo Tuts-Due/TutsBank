@@ -1,15 +1,3 @@
-/**
- * SERVIÇO DE EXPORTAÇÃO EM PDF
- *
- * Gera extratos bancários em PDF com:
- * - Informações do usuário
- * - Lista de transações
- * - Resumo de gastos
- * - Cores do projeto
- *
- * Padrão: Enterprise
- */
-
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { User, Transaction, TransactionType } from "@/types";
@@ -21,7 +9,6 @@ export async function exportTransactionsToPDF(
   transactions: Transaction[]
 ) {
   try {
-    // Criar elemento HTML temporário
     const element = document.createElement("div");
     element.style.padding = "20px";
     element.style.backgroundColor = "#ffffff";
@@ -30,7 +17,6 @@ export async function exportTransactionsToPDF(
     element.style.width = "210mm";
     element.style.minHeight = "297mm";
 
-    // Header
     const header = `
       <div style="border-bottom: 2px solid #00d9ff; padding-bottom: 20px; margin-bottom: 20px;">
         <h1 style="color: #00d9ff; margin: 0; font-size: 28px;">TutsBank</h1>
@@ -38,7 +24,6 @@ export async function exportTransactionsToPDF(
       </div>
     `;
 
-    // Informações do usuário
     const userInfo = `
       <div style="margin-bottom: 20px;">
         <h2 style="color: #333; font-size: 16px; margin: 0 0 10px 0;">Extrato Bancário</h2>
@@ -59,13 +44,12 @@ export async function exportTransactionsToPDF(
             <td style="padding: 5px; color: #666;"><strong>Data:</strong></td>
             <td style="padding: 5px; color: #333;">${format(new Date(), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}</td>
             <td style="padding: 5px; color: #666;"><strong>Período:</strong></td>
-            <td style="padding: 5px; color: #333;">Últimas 30 dias</td>
+            <td style="padding: 5px; color: #333;">Últimos 30 dias</td>
           </tr>
         </table>
       </div>
     `;
 
-    // Resumo
     const totalGastos = transactions
       .filter((tx) => tx.type === TransactionType.TRANSFER)
       .reduce((sum, tx) => sum + tx.amount, 0);
@@ -95,7 +79,6 @@ export async function exportTransactionsToPDF(
       </div>
     `;
 
-    // Transações
     let transactionsHTML = `
       <div>
         <h3 style="color: #333; font-size: 14px; margin: 0 0 10px 0;">Transações (${transactions.length})</h3>
@@ -135,7 +118,6 @@ export async function exportTransactionsToPDF(
       </div>
     `;
 
-    // Footer
     const footer = `
       <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e5e5; font-size: 10px; color: #999; text-align: center;">
         <p>Este é um documento gerado automaticamente pelo TutsBank.</p>
@@ -146,14 +128,12 @@ export async function exportTransactionsToPDF(
     element.innerHTML = header + userInfo + summary + transactionsHTML + footer;
     document.body.appendChild(element);
 
-    // Converter para canvas
     const canvas = await html2canvas(element, {
       scale: 2,
       backgroundColor: "#ffffff",
       logging: false,
     });
 
-    // Criar PDF
     const pdf = new jsPDF({
       orientation: "portrait",
       unit: "mm",
@@ -165,31 +145,21 @@ export async function exportTransactionsToPDF(
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
     let yPosition = 0;
-    let pageHeight = pdf.internal.pageSize.getHeight();
+    const pageHeight = pdf.internal.pageSize.getHeight();
 
     while (yPosition < imgHeight) {
       if (yPosition > 0) {
         pdf.addPage();
       }
 
-      pdf.addImage(
-        imgData,
-        "PNG",
-        0,
-        -yPosition,
-        imgWidth,
-        imgHeight
-      );
-
+      pdf.addImage(imgData, "PNG", 0, -yPosition, imgWidth, imgHeight);
       yPosition += pageHeight;
     }
 
-    // Download
     pdf.save(
       `extrato-${user.name.replace(/\s+/g, "-").toLowerCase()}-${format(new Date(), "yyyy-MM-dd")}.pdf`
     );
 
-    // Limpar
     document.body.removeChild(element);
   } catch (error) {
     console.error("Erro ao exportar PDF:", error);
