@@ -37,8 +37,8 @@ export default function Login() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "user@tutsbank.com",
-      password: "password123",
+      email: "",
+      password: "",
     },
   });
 
