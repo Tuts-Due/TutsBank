@@ -89,6 +89,7 @@ export default function Login() {
             <Input
               type="email"
               placeholder="seu@email.com"
+              autoComplete="email"
               {...register("email")}
               disabled={isSubmitting || authLoading}
               className="w-full"
@@ -107,6 +108,7 @@ export default function Login() {
             <Input
               type="password"
               placeholder="••••••••"
+              autoComplete="current-password"
               {...register("password")}
               disabled={isSubmitting || authLoading}
               className="w-full"
