@@ -29,7 +29,7 @@ export default function NotFound() {
 
           <Button onClick={() => navigate("/login")} className="px-6 py-2.5">
             <Home className="w-4 h-4 mr-2" />
-            Ir para o login
+            Ir para o Home
           </Button>
         </CardContent>
       </Card>

@@ -13,10 +13,13 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
+
     "baseUrl": ".",
     "paths": {
       "@/*": ["client/src/*"]
-    }
+    },
+
+    "ignoreDeprecations": "6.0"
   },
   "include": [
     "client/src",

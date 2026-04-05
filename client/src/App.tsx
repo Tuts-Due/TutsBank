@@ -17,6 +17,16 @@ import History from "@/pages/History";
 import Profile from "@/pages/Profile";
 import Settings from "@/pages/Settings";
 import NotFound from "@/pages/NotFound";
+import Pix from "@/pages/transfer/Pix";
+import PixChaves from "@/pages/transfer/PixChaves";
+import PixLimites from "@/pages/transfer/PixLimites";
+import PixQrCode from "./pages/transfer/PixQrCode";
+import PixCopiaCola from "./pages/transfer/PixCopiaCola";
+import PixDepositar from "./pages/transfer/PixDepositar";
+import PixContestacao from "./pages/transfer/PixContestação";
+import PixAutomatico from "./pages/transfer/PixAutomatico";
+import PixAgendado from "./pages/transfer/PixAgendado";
+import PixCobrar from "./pages/transfer/PixCobrar";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -50,6 +60,105 @@ function AppRoutes() {
           </PrivateRoute>
         }
       />
+
+      <Route
+        path="/transfer/pix/enviar"
+        element={
+          <PrivateRoute>
+            <Pix />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/transfer/pix/qr-code"
+        element={
+          <PrivateRoute>
+            <PixQrCode />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/transfer/pix/copia-cola"
+        element={
+          <PrivateRoute>
+            <PixCopiaCola />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/transfer/pix/agendado"
+        element={
+          <PrivateRoute>
+            <PixAgendado />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/transfer/pix/cobrar"
+        element={
+          <PrivateRoute>
+            <PixCobrar />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/transfer/pix/contestacao"
+        element={
+          <PrivateRoute>
+            <PixContestacao />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/transfer/pix/depositar"
+        element={
+          <PrivateRoute>
+            <PixDepositar />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/transfer/pix/automatico"
+        element={
+          <PrivateRoute>
+            <PixAutomatico />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/transfer/pix/chaves"
+        element={
+          <PrivateRoute>
+            <PixChaves />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/transfer/pix/limites"
+        element={
+          <PrivateRoute>
+            <PixLimites />
+          </PrivateRoute>
+        }
+      />
+
+      {/* <Route
+        path="/transfer/pix/contestacao"
+        element={
+          <PrivateRoute>
+            <PixContestacao />
+          </PrivateRoute>
+        }
+      /> */}
       <Route
         path="/history"
         element={

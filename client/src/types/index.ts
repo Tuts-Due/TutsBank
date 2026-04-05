@@ -78,3 +78,24 @@ export interface TransactionState {
     };
   };
 }
+export enum PixKeyType {
+  CPF = "cpf",
+  EMAIL = "email",
+  PHONE = "phone",
+  RANDOM = "random",
+}
+
+export interface PixPayload {
+  keyType: PixKeyType;
+  pixKey: string;
+  recipientName: string;
+  amount: number;
+  description: string;
+}
+
+export interface PixTransactionResponse {
+  success: boolean;
+  transaction: Transaction;
+  newBalance: number;
+  message: string;
+}

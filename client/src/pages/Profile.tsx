@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -8,17 +7,32 @@ import Layout from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Eye, EyeOff, CheckCircle, AlertCircle } from "lucide-react";
+import {
+  Loader2,
+  Eye,
+  EyeOff,
+  CheckCircle,
+  AlertCircle,
+  Camera,
+  ImagePlus,
+  Trash2,
+} from "lucide-react";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const personalInfoSchema = z.object({
   name: z
     .string()
     .min(3, "Nome deve ter pelo menos 3 caracteres")
     .max(100, "Nome não pode ter mais de 100 caracteres"),
-  email: z
-    .string()
-    .email("Email inválido"),
+  email: z.string().email("Email inválido"),
   phone: z
     .string()
     .regex(/^\(\d{2}\)\s\d{4,5}-\d{4}$/, "Telefone inválido. Formato: (11) 9999-9999"),
@@ -26,9 +40,7 @@ const personalInfoSchema = z.object({
 
 const passwordSchema = z
   .object({
-    currentPassword: z
-      .string()
-      .min(1, "Senha atual é obrigatória"),
+    currentPassword: z.string().min(1, "Senha atual é obrigatória"),
     newPassword: z
       .string()
       .min(6, "Nova senha deve ter pelo menos 6 caracteres")
@@ -47,11 +59,18 @@ type PasswordFormData = z.infer<typeof passwordSchema>;
 
 export default function Profile() {
   const { user } = useAuth();
+
   const [isLoadingPersonal, setIsLoadingPersonal] = useState(false);
   const [isLoadingPassword, setIsLoadingPassword] = useState(false);
+
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isPhotoDialogOpen, setIsPhotoDialogOpen] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const {
     register: registerPersonal,
@@ -94,7 +113,7 @@ export default function Profile() {
         toast.success("Informações pessoais atualizadas com sucesso!");
       }
 
-      resetPersonal();
+      resetPersonal(data);
     } catch {
       toast.error("Erro ao atualizar informações", {
         description: "Tente novamente mais tarde",
@@ -108,7 +127,6 @@ export default function Profile() {
     setIsLoadingPassword(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500));
-
 
       if (data.currentPassword === "password123") {
         toast.success("Senha alterada com sucesso!", {
@@ -136,10 +154,40 @@ export default function Profile() {
     return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7, 11)}`;
   };
 
+  const handlePhotoButtonClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Arquivo inválido", {
+        description: "Selecione uma imagem válida.",
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProfileImage(reader.result as string);
+      toast.success("Foto de perfil atualizada com sucesso!");
+    };
+    reader.readAsDataURL(file);
+
+    setIsPhotoDialogOpen(false);
+  };
+
+  const handleRemovePhoto = () => {
+    setProfileImage(null);
+    setIsPhotoDialogOpen(false);
+    toast.success("Foto removida com sucesso!");
+  };
+
   return (
     <Layout>
       <div className="space-y-8 animate-fadeInUp">
-
         <div className="animate-fadeInDown">
           <h1 className="text-3xl md:text-4xl font-bold text-foreground">
             Meu Perfil
@@ -150,14 +198,31 @@ export default function Profile() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
           <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 h-fit animate-scaleIn">
             <div className="space-y-4">
-              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
-                <div className="w-14 h-14 rounded-full bg-primary/30 flex items-center justify-center text-2xl font-bold text-primary">
-                  {user?.name?.charAt(0).toUpperCase()}
+              <button
+                type="button"
+                onClick={() => setIsPhotoDialogOpen(true)}
+                className="group relative w-16 h-16 rounded-full focus:outline-none"
+              >
+                {profileImage ? (
+                  <img
+                    src={profileImage}
+                    alt="Foto de perfil"
+                    className="w-16 h-16 rounded-full object-cover border border-primary/20"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
+                    <div className="w-14 h-14 rounded-full bg-primary/30 flex items-center justify-center text-2xl font-bold text-primary">
+                      {user?.name?.charAt(0).toUpperCase()}
+                    </div>
+                  </div>
+                )}
+
+                <div className="absolute inset-0 rounded-full bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Camera className="w-5 h-5 text-white" />
                 </div>
-              </div>
+              </button>
 
               <div>
                 <p className="text-sm text-muted-foreground">Nome</p>
@@ -190,9 +255,7 @@ export default function Profile() {
             </div>
           </Card>
 
-
           <div className="lg:col-span-2 space-y-6">
-
             <Card className="p-6 hover:shadow-lg transition-all duration-300 animate-slideInLeft">
               <h2 className="text-2xl font-bold text-foreground mb-6">
                 Informações Pessoais
@@ -202,7 +265,6 @@ export default function Profile() {
                 onSubmit={handleSubmitPersonal(onSubmitPersonal)}
                 className="space-y-4"
               >
-
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-foreground">
                     Nome Completo
@@ -212,7 +274,6 @@ export default function Profile() {
                     placeholder="Seu nome completo"
                     {...registerPersonal("name")}
                     disabled={isLoadingPersonal}
-                    className="transition-all duration-200"
                   />
                   {errorsPersonal.name && (
                     <p className="text-xs text-destructive flex items-center gap-1">
@@ -221,7 +282,6 @@ export default function Profile() {
                     </p>
                   )}
                 </div>
-
 
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-foreground">
@@ -232,7 +292,6 @@ export default function Profile() {
                     placeholder="seu@email.com"
                     {...registerPersonal("email")}
                     disabled={isLoadingPersonal}
-                    className="transition-all duration-200"
                   />
                   {errorsPersonal.email && (
                     <p className="text-xs text-destructive flex items-center gap-1">
@@ -241,7 +300,6 @@ export default function Profile() {
                     </p>
                   )}
                 </div>
-
 
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-foreground">
@@ -257,7 +315,6 @@ export default function Profile() {
                       registerPersonal("phone").onChange(e);
                     }}
                     disabled={isLoadingPersonal}
-                    className="transition-all duration-200"
                   />
                   {errorsPersonal.phone && (
                     <p className="text-xs text-destructive flex items-center gap-1">
@@ -267,11 +324,7 @@ export default function Profile() {
                   )}
                 </div>
 
-                <Button
-                  type="submit"
-                  disabled={isLoadingPersonal}
-                  className="w-full transition-all duration-200 transform hover:scale-105 active:scale-95"
-                >
+                <Button type="submit" disabled={isLoadingPersonal} className="w-full">
                   {isLoadingPersonal ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -296,7 +349,6 @@ export default function Profile() {
                 onSubmit={handleSubmitPassword(onSubmitPassword)}
                 className="space-y-4"
               >
-
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-foreground">
                     Senha Atual
@@ -307,7 +359,7 @@ export default function Profile() {
                       placeholder="••••••••"
                       {...registerPassword("currentPassword")}
                       disabled={isLoadingPassword}
-                      className="pr-10 transition-all duration-200"
+                      className="pr-10"
                     />
                     <button
                       type="button"
@@ -339,7 +391,7 @@ export default function Profile() {
                       placeholder="••••••••"
                       {...registerPassword("newPassword")}
                       disabled={isLoadingPassword}
-                      className="pr-10 transition-all duration-200"
+                      className="pr-10"
                     />
                     <button
                       type="button"
@@ -371,7 +423,7 @@ export default function Profile() {
                       placeholder="••••••••"
                       {...registerPassword("confirmPassword")}
                       disabled={isLoadingPassword}
-                      className="pr-10 transition-all duration-200"
+                      className="pr-10"
                     />
                     <button
                       type="button"
@@ -395,15 +447,11 @@ export default function Profile() {
 
                 <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
                   <p className="text-xs text-yellow-700 dark:text-yellow-400">
-                     Use uma senha forte com letras, números e caracteres especiais
+                    Use uma senha forte com letras, números e caracteres especiais
                   </p>
                 </div>
 
-                <Button
-                  type="submit"
-                  disabled={isLoadingPassword}
-                  className="w-full transition-all duration-200 transform hover:scale-105 active:scale-95"
-                >
+                <Button type="submit" disabled={isLoadingPassword} className="w-full">
                   {isLoadingPassword ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -420,6 +468,71 @@ export default function Profile() {
             </Card>
           </div>
         </div>
+
+        <Dialog open={isPhotoDialogOpen} onOpenChange={setIsPhotoDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Foto de perfil</DialogTitle>
+              <DialogDescription>
+                Adicione, altere ou remova sua foto de perfil.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="flex flex-col items-center gap-4 py-2">
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  alt="Pré-visualização da foto de perfil"
+                  className="w-24 h-24 rounded-full object-cover border border-primary/20"
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center">
+                  <div className="w-20 h-20 rounded-full bg-primary/30 flex items-center justify-center text-3xl font-bold text-primary">
+                    {user?.name?.charAt(0).toUpperCase()}
+                  </div>
+                </div>
+              )}
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handlePhotoChange}
+              />
+
+              <div className="w-full space-y-3">
+                <Button type="button" onClick={handlePhotoButtonClick} className="w-full">
+                  <ImagePlus className="w-4 h-4 mr-2" />
+                  {profileImage ? "Trocar foto" : "Adicionar foto"}
+                </Button>
+
+                {profileImage && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleRemovePhoto}
+                    className="w-full hover:bg-destructive/10 hover:text-destructive border-destructive/20"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Remover foto
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsPhotoDialogOpen(false)}
+                className="w-full sm:w-auto"
+              >
+                Fechar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );

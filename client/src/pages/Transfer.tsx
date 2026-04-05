@@ -1,91 +1,60 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useAuth } from "@/hooks/useAuth";
-import { useTransfer, useGetBalance } from "@/hooks/useQueries";
 import Layout from "@/components/Layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/useAuth";
+import { useGetBalance } from "@/hooks/useQueries";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle, Loader2 } from "lucide-react";
-import { useState } from "react";
+import {
+  ArrowRightLeft,
+  CreditCard,
+  QrCode,
+  ScanLine,
+  ClipboardPaste,
+  CalendarClock,
+  HandCoins,
+  Wallet,
+  Zap,
+  KeyRound,
+  ShieldCheck,
+  BadgeAlert,
+  ArrowRight,
+} from "lucide-react";
 
-const transferSchema = z.object({
-  recipientAccount: z
-    .string()
-    .min(1, "Conta do destinatário é obrigatória")
-    .regex(/^\d{4}-\d$/, "Formato: 1234-5"),
-  recipientName: z
-    .string()
-    .min(1, "Nome do destinatário é obrigatório")
-    .min(3, "Nome deve ter pelo menos 3 caracteres"),
-  amount: z
-    .string()
-    .min(1, "Valor é obrigatório")
-    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
-      message: "Valor deve ser maior que zero",
-    }),
-  description: z
-    .string()
-    .max(100, "Descrição não pode ter mais de 100 caracteres"),
-});
+interface ActionCardProps {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+}
 
-type TransferFormData = z.infer<typeof transferSchema>;
+function ActionCard({ title, description, icon, onClick }: ActionCardProps) {
+  return (
+    <Card className="p-5 h-full">
+      <div className="flex flex-col h-full justify-between gap-4">
+        <div className="space-y-3">
+          <div className="w-fit p-3 rounded-xl bg-primary/10 text-primary">
+            {icon}
+          </div>
+
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+            <p className="text-sm text-muted-foreground mt-1">{description}</p>
+          </div>
+        </div>
+
+        <Button type="button" variant="outline" onClick={onClick} className="w-full">
+          Acessar
+          <ArrowRight className="w-4 h-4 ml-2" />
+        </Button>
+      </div>
+    </Card>
+  );
+}
 
 export default function Transfer() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { mutate: transfer, isPending } = useTransfer();
   const { data: balance } = useGetBalance(user?.id || null);
-  const [success, setSuccess] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    watch,
-    reset,
-  } = useForm<TransferFormData>({
-    resolver: zodResolver(transferSchema),
-    defaultValues: {
-      recipientAccount: "",
-      recipientName: "",
-      amount: "",
-      description: "",
-    },
-  });
-
-  const amount = watch("amount");
-  const amountValue = amount ? parseFloat(amount) : 0;
-  const hasInsufficientBalance = amountValue > (balance || 0);
-
-  const onSubmit = async (data: TransferFormData) => {
-    if (!user) return;
-
-    transfer(
-      {
-        userId: user.id,
-        payload: {
-          recipientAccount: data.recipientAccount,
-          recipientName: data.recipientName,
-          amount: parseFloat(data.amount),
-          description: data.description,
-        },
-      },
-      {
-        onSuccess: (response) => {
-          setSuccess(true);
-          setSuccessMessage(response.message);
-          reset();
-          setTimeout(() => {
-            navigate("/dashboard");
-          }, 2000);
-        },
-      }
-    );
-  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -96,159 +65,157 @@ export default function Transfer() {
 
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto space-y-8">
+      <div className="space-y-8">
         <div>
-          <h1 className="text-4xl font-bold text-foreground">Transferência</h1>
+          <h1 className="text-4xl font-bold text-foreground">
+            Transferências e Pix
+          </h1>
           <p className="text-muted-foreground mt-2">
-            Envie dinheiro para outra conta
+            Gerencie transferências, Pix e serviços relacionados
           </p>
         </div>
 
-        <Card className="p-8">
-          {success ? (
-            <div className="text-center space-y-4">
-              <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
-              <div>
-                <h2 className="text-2xl font-bold text-foreground">
-                  Transferência realizada!
-                </h2>
-                <p className="text-muted-foreground mt-2">{successMessage}</p>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Redirecionando para o dashboard...
-              </p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              <div className="p-4 bg-secondary rounded-lg">
-                <p className="text-sm text-muted-foreground">Saldo disponível</p>
-                <p className="text-2xl font-bold text-foreground">
-                  {formatCurrency(balance || 0)}
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-foreground">
-                  Conta do destinatário
-                </label>
-                <Input
-                  placeholder="1234-5"
-                  {...register("recipientAccount")}
-                  disabled={isSubmitting || isPending}
-                />
-                {errors.recipientAccount && (
-                  <p className="text-xs text-destructive">
-                    {errors.recipientAccount.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-foreground">
-                  Nome do destinatário
-                </label>
-                <Input
-                  placeholder="Arthur Dué"
-                  {...register("recipientName")}
-                  disabled={isSubmitting || isPending}
-                />
-                {errors.recipientName && (
-                  <p className="text-xs text-destructive">
-                    {errors.recipientName.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-foreground">
-                  Valor
-                </label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  placeholder="0.00"
-                  {...register("amount")}
-                  disabled={isSubmitting || isPending}
-                />
-                {errors.amount && (
-                  <p className="text-xs text-destructive">
-                    {errors.amount.message}
-                  </p>
-                )}
-                {hasInsufficientBalance && (
-                  <p className="text-xs text-destructive">
-                    Saldo insuficiente
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-foreground">
-                  Descrição
-                </label>
-                <Input
-                  placeholder="Motivo da transferência"
-                  {...register("description")}
-                  disabled={isSubmitting || isPending}
-                />
-                {errors.description && (
-                  <p className="text-xs text-destructive">
-                    {errors.description.message}
-                  </p>
-                )}
-              </div>
-
-              {amountValue > 0 && (
-                <div className="p-4 bg-secondary rounded-lg space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Valor:</span>
-                    <span className="font-semibold">
-                      {formatCurrency(amountValue)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Saldo após:</span>
-                    <span
-                      className={`font-semibold ${
-                        hasInsufficientBalance
-                          ? "text-destructive"
-                          : "text-foreground"
-                      }`}
-                    >
-                      {formatCurrency((balance || 0) - amountValue)}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex gap-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => navigate("/dashboard")}
-                  disabled={isSubmitting || isPending}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={isSubmitting || isPending || hasInsufficientBalance}
-                  className="flex-1"
-                >
-                  {isSubmitting || isPending ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Processando...
-                    </>
-                  ) : (
-                    "Confirmar transferência"
-                  )}
-                </Button>
-              </div>
-            </form>
-          )}
+        <Card className="p-6">
+          <p className="text-sm text-muted-foreground mb-1">Saldo disponível</p>
+          <p className="text-3xl font-bold text-primary">
+            {formatCurrency(balance || 0)}
+          </p>
         </Card>
+
+        {/* <section className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">Área Pix</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Escolha como deseja movimentar seu dinheiro
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <ActionCard
+              title="Transferência"
+              description="Envie dinheiro para outra conta bancária."
+              icon={<ArrowRightLeft className="w-5 h-5" />}
+              onClick={() => navigate("/transfer/transferir")}
+            />
+
+            <ActionCard
+              title="Área Pix"
+              description="Acesse os serviços Pix disponíveis no app."
+              icon={<QrCode className="w-5 h-5" />}
+              onClick={() => navigate("/transfer/pix/enviar")}
+            />
+          </div>
+        </section> */}
+
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">Área Pix</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Explore as funcionalidades do Pix para pagamentos e recebimentos
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <ActionCard
+              title="Pix transferir"
+              description="Envie um Pix para outra pessoa usando chave."
+              icon={<QrCode className="w-5 h-5" />}
+              onClick={() => navigate("/transfer/pix/enviar")}
+            />
+
+            {/* <ActionCard
+              title="Pix no crédito"
+              description="Simule pagamentos Pix no crédito."
+              icon={<CreditCard className="w-5 h-5" />}
+              onClick={() => navigate("/transfer/pix/credito")}
+            /> */}
+
+            <ActionCard
+              title="Ler QR Code"
+              description="Acesse a área de leitura de QR Code Pix."
+              icon={<ScanLine className="w-5 h-5" />}
+              onClick={() => navigate("/transfer/pix/qr-code")}
+            />
+
+            <ActionCard
+              title="Pix copia e cola"
+              description="Cole um código Pix e realize o pagamento."
+              icon={<ClipboardPaste className="w-5 h-5" />}
+              onClick={() => navigate("/transfer/pix/copia-cola")}
+            />
+
+            <ActionCard
+              title="Pix agendado"
+              description="Agende pagamentos Pix para outra data."
+              icon={<CalendarClock className="w-5 h-5" />}
+              onClick={() => navigate("/transfer/pix/agendado")}
+            />
+
+            <ActionCard
+              title="Cobrar"
+              description="Crie cobranças e compartilhe com outras pessoas."
+              icon={<HandCoins className="w-5 h-5" />}
+              onClick={() => navigate("/transfer/pix/cobrar")}
+            />
+
+            <ActionCard
+              title="Depositar"
+              description="Receba valores e gerencie entradas via Pix."
+              icon={<Wallet className="w-5 h-5" />}
+              onClick={() => navigate("/transfer/pix/depositar")}
+            />
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">Preferências</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Ajustes e controles da sua experiência com Pix
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <ActionCard
+              title="Pix automático"
+              description="Configure pagamentos automáticos via Pix."
+              icon={<Zap className="w-5 h-5" />}
+              onClick={() => navigate("/transfer/pix/automatico")}
+            />
+
+            <ActionCard
+              title="Registrar ou trazer chaves"
+              description="Gerencie suas chaves Pix cadastradas."
+              icon={<KeyRound className="w-5 h-5" />}
+              onClick={() => navigate("/transfer/pix/chaves")}
+            />
+
+            <ActionCard
+              title="Meus limites Pix"
+              description="Consulte e ajuste limites de uso do Pix."
+              icon={<ShieldCheck className="w-5 h-5" />}
+              onClick={() => navigate("/transfer/pix/limites")}
+            />
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">Suporte</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Canais para suporte e contestação
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <ActionCard
+              title="Contestação de transação Pix"
+              description="Abra uma solicitação para revisar uma transação Pix."
+              icon={<BadgeAlert className="w-5 h-5" />}
+              onClick={() => navigate("/transfer/pix/contestacao")}
+            />
+          </div>
+        </section>
       </div>
     </Layout>
   );
