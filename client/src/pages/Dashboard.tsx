@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useGetTransactions, useGetBalance } from "@/hooks/useQueries";
 import Layout from "@/components/Layout";
@@ -5,15 +6,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import {
-  ArrowUpRight,
-  ArrowDownLeft,
-  TrendingUp,
-  Loader2,
-} from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, TrendingUp, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { TransactionType, TransactionStatus } from "@/types";
+import { TransactionType, TransactionStatus, Transaction } from "@/types";
+import TransactionDetailsModal from "@/components/TransactionDetailsModal";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -24,6 +21,10 @@ export default function Dashboard() {
   const { data: balance, isLoading: balanceLoading } = useGetBalance(
     user?.id || null
   );
+
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -113,10 +114,15 @@ export default function Dashboard() {
               {transactions.slice(0, 5).map((tx, index) => (
                 <Card
                   key={tx.id}
-                  className="p-4 hover:bg-secondary hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 cursor-pointer animate-fadeInUp"
+                  onClick={() => {
+                    setSelectedTransaction(tx);
+                    setIsTransactionModalOpen(true);
+                  }}
+                  className="p-4 hover:bg-secondary hover:shadow-md hover:border-primary/20 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer animate-fadeInUp"
                   style={{
                     animation: `fadeInUp 0.3s ease-out ${index * 0.05}s both`,
                   }}
+                  title="Clique para ver detalhes"
                 >
                   <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4 flex-1 min-w-0">
@@ -154,7 +160,9 @@ export default function Dashboard() {
             </div>
           ) : (
             <Card className="p-8 text-center">
-              <p className="text-muted-foreground">Nenhuma transação registrada</p>
+              <p className="text-muted-foreground">
+                Nenhuma transação registrada
+              </p>
             </Card>
           )}
 
@@ -168,6 +176,12 @@ export default function Dashboard() {
             </Button>
           )}
         </div>
+
+        <TransactionDetailsModal
+          open={isTransactionModalOpen}
+          onClose={() => setIsTransactionModalOpen(false)}
+          transaction={selectedTransaction}
+        />
       </div>
     </Layout>
   );

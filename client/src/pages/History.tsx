@@ -23,15 +23,18 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { TransactionType, TransactionStatus } from "@/types";
+import { TransactionType, TransactionStatus, Transaction } from "@/types";
 import { ExpenseChart } from "@/components/ExpenseChart";
 import { exportTransactionsToPDF } from "@/services/pdfExport";
+import TransactionDetailsModal from "@/components/TransactionDetailsModal";
 
 export default function History() {
   const { user } = useAuth();
   const { data: transactions, isLoading } = useGetTransactions(
     user?.id || null
   );
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
 
   const [filterType, setFilterType] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -311,7 +314,11 @@ export default function History() {
             {filteredTransactions.map((tx) => (
               <Card
                 key={tx.id}
-                className="p-4 hover:bg-secondary transition-colors"
+                onClick={() => {
+                  setSelectedTransaction(tx);
+                  setIsTransactionModalOpen(true);
+                }}
+                className="p-4 hover:bg-secondary transition-colors cursor-pointer"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1">
@@ -394,6 +401,11 @@ export default function History() {
           </Card>
         )}
       </div>
+          <TransactionDetailsModal
+            open={isTransactionModalOpen}
+            onClose={() => setIsTransactionModalOpen(false)}
+            transaction={selectedTransaction}
+          />
     </Layout>
   );
 }

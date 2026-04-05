@@ -31,6 +31,7 @@ export enum TransactionType {
   TRANSFER = "transfer",
   DEPOSIT = "deposit",
   WITHDRAWAL = "withdrawal",
+  PIX = "pix",
 }
 
 export enum TransactionStatus {
