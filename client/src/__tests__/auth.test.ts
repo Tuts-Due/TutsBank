@@ -10,7 +10,7 @@ describe("Authentication Service", () => {
     it("should login successfully with valid credentials", async () => {
       const response = await authService.login({
         email: "user@tutsbank.com",
-        password: "password123",
+        password: "password123#",
       });
 
       expect(response).toBeDefined();
@@ -24,7 +24,7 @@ describe("Authentication Service", () => {
       try {
         await authService.login({
           email: "invalid@email.com",
-          password: "password123",
+          password: "password123#",
         });
         expect.fail("Should have thrown an error");
       } catch (error) {
@@ -36,7 +36,7 @@ describe("Authentication Service", () => {
     it("should store token in localStorage", async () => {
       await authService.login({
         email: "user@tutsbank.com",
-        password: "password123",
+        password: "password123#",
       });
 
       const token = localStorage.getItem("authToken");
@@ -47,7 +47,7 @@ describe("Authentication Service", () => {
     it("should store user in localStorage", async () => {
       await authService.login({
         email: "user@tutsbank.com",
-        password: "password123",
+        password: "password123#",
       });
 
       const userJson = localStorage.getItem("user");
@@ -64,7 +64,7 @@ describe("Authentication Service", () => {
       
       await authService.login({
         email: "user@tutsbank.com",
-        password: "password123",
+        password: "password123#",
       });
 
       expect(localStorage.getItem("authToken")).toBeDefined();
@@ -80,7 +80,7 @@ describe("Authentication Service", () => {
     it("should return current user when authenticated", async () => {
       await authService.login({
         email: "user@tutsbank.com",
-        password: "password123",
+        password: "password123#",
       });
 
       const user = await authService.getCurrentUser();

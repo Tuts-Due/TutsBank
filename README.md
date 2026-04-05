@@ -237,7 +237,7 @@ pnpm build
 
 ```txt
 Email: user@tutsbank.com
-Senha: password123
+Senha: password123#
 ```
 
 ---

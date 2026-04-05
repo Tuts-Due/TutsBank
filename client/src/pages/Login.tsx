@@ -143,7 +143,7 @@ export default function Login() {
               <strong>Email:</strong> user@tutsbank.com
             </p>
             <p className="text-xs text-muted-foreground">
-              <strong>Senha:</strong> password123
+              <strong>Senha:</strong> password123#
             </p>
           </div>
         </form>

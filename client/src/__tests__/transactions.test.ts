@@ -9,7 +9,7 @@ describe("Transaction Service", () => {
 
     const response = await authService.login({
       email: "user@tutsbank.com",
-      password: "password123",
+      password: "password123#",
     });
 
     userId = response.user.id;

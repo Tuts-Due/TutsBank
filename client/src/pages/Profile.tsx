@@ -128,7 +128,7 @@ export default function Profile() {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      if (data.currentPassword === "password123") {
+      if (data.currentPassword === "password123#") {
         toast.success("Senha alterada com sucesso!", {
           description: "Sua nova senha foi definida",
         });
